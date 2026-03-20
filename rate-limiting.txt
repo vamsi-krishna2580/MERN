@@ -1,0 +1,3 @@
+Rate limiting is a way to control how often someone can do something on a website or app
+like how many times they can refresh a page, make a request to an API, or try to log in,
+
