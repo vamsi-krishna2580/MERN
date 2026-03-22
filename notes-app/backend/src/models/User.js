@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const signup_schema = new mongoose.Schema({
+const user_schema = new mongoose.Schema({
     email: {
     type:String,
     required: true,
@@ -15,5 +15,5 @@ const signup_schema = new mongoose.Schema({
     }
 });
 
-const user = mongoose.model("user", signup_schema);
+const user = mongoose.model("user", user_schema);
 export default user;
