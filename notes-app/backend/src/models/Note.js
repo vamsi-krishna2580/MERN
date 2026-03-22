@@ -8,13 +8,22 @@ const noteSchema = new mongoose.Schema ({
         type:String,
         required: true,
     },
-    content: {
-        type: String,
-        required: true,
-    },
+    completed: {
+        type: Boolean,
+        default: false,
+    }
 },
     { timestamps: true },
 );
+
+noteSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+  },
+});
+
 
 const Note = mongoose.model("note", noteSchema)
 

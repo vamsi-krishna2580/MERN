@@ -20,7 +20,7 @@ app.use((req, res, next)=>{
     next();
 });
 app.use(rateLimiter);
-app.use("/api/notes", notesRouter);
+app.use("/api/todos", notesRouter);
 app.use("/api/auth", AuthRouter);
 
 connectDB().then(()=>{
