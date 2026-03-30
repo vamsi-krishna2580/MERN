@@ -62,7 +62,7 @@ export function TodosPage() {
       setTodos(todos.filter(t => t.id !== id));
       toast.success('Todo deleted successfully');
     } else {
-      toast.error(response.error || 'Failed to delete todo');
+      toast.error(response.error || 'Failed to del todo');
     }
   };
 
