@@ -1,15 +1,40 @@
 import Note from "../models/Note.js"
 
 
-export  const getAllnotes = async (_, res)=>{
+// export  const getAllnotes = async (_, res)=>{
+//     try {
+//         const data = await Note.find().sort({ createdAt: -1 }); // -1 will sort in desc order {newest first}
+//         res.status(200).json({
+//             "success":true, data,
+//         });
+//     } catch (error) {
+//         console.error("Error in getAllnotes controller", error);
+//         res.status(500).json({message: "Error Internal Server error"})
+//     }
+// };
+
+// with pagination
+export const getAllnotes = async (req, res) => {
     try {
-        const data = await Note.find().sort({ createdAt: -1 }); // -1 will sort in desc order {newest first}
+        // get page & limit from query
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        const data = await Note.find()
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
         res.status(200).json({
-            "success":true, data,
+            success: true,
+            page,
+            limit,
+            data,
         });
+
     } catch (error) {
         console.error("Error in getAllnotes controller", error);
-        res.status(500).json({message: "Error Internal Server error"})
+        res.status(500).json({ message: "Internal Server error" });
     }
 };
 

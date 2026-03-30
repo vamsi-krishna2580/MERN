@@ -13,8 +13,11 @@ const noteSchema = new mongoose.Schema ({
         default: false,
     }
 },
-    { timestamps: true },
+{ timestamps: true },
 );
+
+// 🔥 ADD THIS
+noteSchema.index({ createdAt: -1 });
 
 noteSchema.set('toJSON', {
   transform: (doc, ret) => {
@@ -23,7 +26,6 @@ noteSchema.set('toJSON', {
     delete ret.__v;
   },
 });
-
 
 const Note = mongoose.model("note", noteSchema)
 

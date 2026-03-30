@@ -19,7 +19,7 @@ app.use((req, res, next)=>{
     console.log(`Req method is ${req.method} & Req URL is ${req.url}\n`);
     next();
 });
-app.use(rateLimiter);
+//app.use(rateLimiter);
 app.use("/api/todos", notesRouter);
 app.use("/api/auth", AuthRouter);
 
