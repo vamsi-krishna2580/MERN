@@ -1,25 +1,32 @@
 import mongoose from "mongoose";
 
-// 1-create a schema
-// 2- model based off of that schema
-
-const noteSchema = new mongoose.Schema ({
-    title:{
-        type:String,
-        required: true,
+// schema
+const noteSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
     },
     completed: {
-        type: Boolean,
-        default: false,
-    }
-},
-{ timestamps: true },
+      type: Boolean,
+      default: false,
+    },
+
+    // ✅ FIXED: moved inside schema
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // ✅ FIXED: correct model name
+      required: true,
+    },
+  },
+  { timestamps: true }
 );
 
-// 🔥 ADD THIS
+// index
 noteSchema.index({ createdAt: -1 });
 
-noteSchema.set('toJSON', {
+// transform
+noteSchema.set("toJSON", {
   transform: (doc, ret) => {
     ret.id = ret._id;
     delete ret._id;
@@ -27,6 +34,7 @@ noteSchema.set('toJSON', {
   },
 });
 
-const Note = mongoose.model("note", noteSchema)
+// model
+const Note = mongoose.model("Note", noteSchema);
 
-export default Note
+export default Note;

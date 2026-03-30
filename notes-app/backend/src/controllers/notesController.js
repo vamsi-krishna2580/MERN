@@ -1,42 +1,42 @@
 import Note from "../models/Note.js"
 
 
-// export  const getAllnotes = async (_, res)=>{
-//     try {
-//         const data = await Note.find().sort({ createdAt: -1 }); // -1 will sort in desc order {newest first}
-//         res.status(200).json({
-//             "success":true, data,
-//         });
-//     } catch (error) {
-//         console.error("Error in getAllnotes controller", error);
-//         res.status(500).json({message: "Error Internal Server error"})
-//     }
-// };
-
-// with pagination
-export const getAllnotes = async (req, res) => {
+export  const getAllnotes = async (req, res)=>{
     try {
-        // get page & limit from query
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-
-        const data = await Note.find()
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit);
-
+        const data = await Note.find({userId: req.userId}).sort({ createdAt: -1 }); // -1 will sort in desc order {newest first}
         res.status(200).json({
-            success: true,
-            page,
-            limit,
-            data,
-        });
-
+            "success":true, data,
+        }); 
     } catch (error) {
         console.error("Error in getAllnotes controller", error);
-        res.status(500).json({ message: "Internal Server error" });
+        res.status(500).json({message: "Error Internal Server error"})
     }
 };
+
+// with pagination
+// export const getAllnotes = async (req, res) => {
+//     try {
+//         // get page & limit from query
+//         const page = parseInt(req.query.page) || 1;
+//         const limit = parseInt(req.query.limit) || 10;
+
+//         const data = await Note.find()
+//             .sort({ createdAt: -1 })
+//             .skip((page - 1) * limit)
+//             .limit(limit);
+
+//         res.status(200).json({
+//             success: true,
+//             page,
+//             limit,
+//             data,
+//         });
+
+//     } catch (error) {
+//         console.error("Error in getAllnotes controller", error);
+//         res.status(500).json({ message: "Internal Server error" });
+//     }
+// };
 
 export const getNoteById = async(req,res)=>{
     try {
@@ -53,7 +53,7 @@ export const getNoteById = async(req,res)=>{
 export const createNote = async (req,res)=>{
    try {
         const { title } = req.body
-        const newNote = new Note({title:title});
+        const newNote = new Note({userId: req.userId,title:title});
         const savedNote = await newNote.save();
         res.status(201).json({data: savedNote, success: true, message: "Note added successfully"});
    } catch (error) {
@@ -85,8 +85,8 @@ export const deleteNote = async(req,res)=>{
     try{
         const id = req.params.id;
         const deleteNote = await Note.findByIdAndDelete(id)
-        if(!deleteNote) return res.status(404).json({message: "Note not found"});
-        res.status(201).json({message: "Note deleted successfully"});
+        if(!deleteNote) return res.status(404).json({success: true ,message: "Note not found"});
+        res.status(201).json({message: "Note deleted successfully", success: true});
     }catch(error){
         console.error("Error in updateNode controller", error);
         res.status(500).json({message: "Error Internal Server error"})

@@ -6,11 +6,12 @@ import { connectDB } from "./config/db.js";
 import rateLimiter from "./middleware/rateLimiter.js";
 import AuthRouter from "./routes/AuthRouter.js"
 import cors from "cors";
+import { verifyUser } from "./middleware/auth.js";
 
 
 const app = express();
 
-const PORT  = process.env.PORT || 5000
+const PORT  = process.env.PORT || 5000;
 
 //middleware
 app.use(express.json())  // middleware is function or method that executes on incoming request
@@ -20,7 +21,7 @@ app.use((req, res, next)=>{
     next();
 });
 //app.use(rateLimiter);
-app.use("/api/todos", notesRouter);
+app.use("/api/todos", verifyUser, notesRouter);
 app.use("/api/auth", AuthRouter);
 
 connectDB().then(()=>{
