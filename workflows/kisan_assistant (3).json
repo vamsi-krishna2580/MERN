@@ -1,0 +1,293 @@
+{
+  "name": "kisan_assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        -208
+      ],
+      "id": "0c7a48c2-4873-4999-bad8-ed50b579b9d1",
+      "name": "Telegram Trigger",
+      "webhookId": "a7cabe3c-54e2-41d5-bf9f-93acfebee4de",
+      "alwaysOutputData": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "nQGzow1bvoINUb0N",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User message: {{ $json.message.text }}\nToday's date: {{ $now.format('DD/MM/YYYY') }}\n\nUnderstand the user's message and help the farmer.\n\nRules:\n- Identify crop and location from the message\n- Reply in the SAME language as the user\n- If crop or location is missing → ask naturally\n- NEVER guess prices — always use get_mandi_prices tool with today's date\n- For weather → use get_city_coordinates first, then get_weather_forecast\n- Keep response simple, short, and helpful",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are Agrithm — an AI assistant helping Indian farmers make smart decisions using REAL DATA only.\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🔧 STRICT TOOL RULES — FOLLOW ALWAYS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n1. 💰 PRICE QUESTIONS → ALWAYS call get_mandi_prices\n   - Pass: commodity name, state, district (if known), and TODAY's date as Arrival_Date\n   - NEVER invent or guess any price\n   - If 0 results returned → tell farmer honestly + say: \"Call 1800-180-1551 (Free Kisan helpline)\"\n\n2. 🌦️ WEATHER QUESTIONS → call get_city_coordinates FIRST, then call get_weather_forecast\n   - Use lat/lon from geocoding step\n   - NEVER guess weather\n\n3. If both tools return no data → Be honest, never fabricate\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🌐 LANGUAGE RULES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n- Understand: English, Telugu, Hindi, Kannada, Tamil, Marathi\n- Translate internally to English to understand\n- ALWAYS reply in user's original language\n- Understand informal farmer dialect\n\nCrop name translations:\n→ patti panta / paruttu = Cotton\n→ vari panta / biyyam = Rice\n→ ghodhuma = Wheat\n→ minapappu = Black Gram\n→ pesarapappu = Green Gram\n→ senaga = Chickpea\n→ pachi mirchi = Green Chilli\n→ vankaya = Brinjal\n→ tomato = Tomato\n→ ullipaya = Onion\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📋 RESPONSE FORMAT\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nWhen price data found from tool:\n\n🌾 పంట: <crop>\n📍 మండి: <market/district>\n💰 నేటి ధర: <min>–<max> రూపాయలు / క్వింటాల్\n📅 తేదీ: <arrival date from tool>\n📈 సలహా: <sell / wait / check mandi tomorrow + reason>\n\n(Show format in user's language — above is Telugu example)\n\nWhen price NOT found:\n🌾 పంట: <crop>\n⚠️ నేడు ఈ మండిలో ధర అందుబాటులో లేదు.\n📞 కిసాన్ హెల్ప్‌లైన్ కు కాల్ చేయండి: 1800-180-1551 (ఉచితం)\n\nFor weather:\n🌤️ <city> వాతావరణం (7 రోజులు):\n🌡️ గరిష్ట/కనిష్ట ఉష్ణోగ్రత: <values>\n🌧️ వర్షపాతం: <values>\n🌾 రైతు సలహా: <specific farming advice based on forecast>\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📌 GENERAL GUIDELINES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n- Replies must be SHORT, SIMPLE, USEFUL\n- NEVER use technical jargon\n- NEVER write 'Not mentioned' — ask naturally instead\n- Be warm, respectful, and supportive\n- Assume farmer may have low literacy\n- Always give a clear, actionable recommendation"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        16,
+        -208
+      ],
+      "id": "528b640d-84ae-43c4-a9ed-fd9ccc3583a6",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        40
+      ],
+      "id": "93b4c61b-5cad-4c6f-84a5-8e8a8438af00",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "d3RMDb1iPwp1BJvM",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -40,
+        40
+      ],
+      "id": "b46b8ecb-41a7-4da1-9b81-82ad8e0499e7",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        -208
+      ],
+      "id": "a0c759c4-e4d3-45f8-91d9-e5afe8dfaa25",
+      "name": "Send a text message1",
+      "webhookId": "1cf33a83-4b3c-4c4a-8fb0-a18dbc8387f3",
+      "credentials": {
+        "telegramApi": {
+          "id": "KEEZQdbAhWCpyl5k",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "get_mandi_prices",
+        "description": "Fetches REAL current variety-wise daily market prices from Indian Government mandi database. ALWAYS use this when the farmer asks about crop prices, rates, or mandi bhav. NEVER guess or make up prices — always call this tool first.",
+        "method": "GET",
+        "url": "https://api.data.gov.in/resource/variety-wise-daily-market-prices-data-commodity?api-key=579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b&format=json&limit=10&filters[Commodity]={commodity}&filters[State]={state}&filters[District]={district}&filters[Arrival_Date]={arrival_date}",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "commodity",
+              "description": "The crop name in English. Examples: Wheat, Rice, Cotton, Tomato, Onion, Maize, Groundnut, Sugarcane, Banana, Black Gram, Green Gram",
+              "type": "string"
+            },
+            {
+              "name": "state",
+              "description": "The Indian state name. Examples: Andhra Pradesh, Telangana, Maharashtra, Karnataka. Leave empty if unknown.",
+              "type": "string"
+            },
+            {
+              "name": "district",
+              "description": "The district name. Examples: Guntur, Ongole, Krishna, Nellore, Warangal. Leave empty if unknown.",
+              "type": "string"
+            },
+            {
+              "name": "arrival_date",
+              "description": "Today's date in DD/MM/YYYY format. This is provided in the user message to get the most recent prices.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        40
+      ],
+      "id": "a1b2c3d4-1111-2222-3333-444455556666",
+      "name": "Mandi Price Tool"
+    },
+    {
+      "parameters": {
+        "name": "get_city_coordinates",
+        "description": "Converts a city or village name in India to GPS coordinates (latitude and longitude). Call this FIRST before get_weather_forecast. Returns lat/lon values needed for weather data.",
+        "method": "GET",
+        "url": "https://geocoding-api.open-meteo.com/v1/search?name={city_name}&count=1&language=en&format=json",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "city_name",
+              "description": "The city, town or village name in India. Examples: Ongole, Hyderabad, Guntur, Vijayawada, Warangal, Nellore",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        360,
+        40
+      ],
+      "id": "b2c3d4e5-aaaa-bbbb-cccc-ddddeeee1111",
+      "name": "City Coordinates Tool"
+    },
+    {
+      "parameters": {
+        "name": "get_weather_forecast",
+        "description": "Gets REAL 7-day weather forecast. Call AFTER get_city_coordinates to get latitude and longitude first. Provides real temperature, rainfall, and wind data for farming decisions.",
+        "method": "GET",
+        "url": "https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,weathercode,windspeed_10m_max&current=temperature_2m,precipitation,weathercode,windspeed_10m&timezone=Asia%2FKolkata&forecast_days=7",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "latitude",
+              "description": "Latitude as a decimal number obtained from get_city_coordinates tool.",
+              "type": "number"
+            },
+            {
+              "name": "longitude",
+              "description": "Longitude as a decimal number obtained from get_city_coordinates tool.",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        40
+      ],
+      "id": "c3d4e5f6-1234-5678-9abc-def012345678",
+      "name": "Weather Forecast Tool"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandi Price Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "City Coordinates Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weather Forecast Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5e808487-a2f6-48cf-ae99-a71af4907eb7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fc8ccbf321db710203a703d25611dde75c2e77e72be59472a45e8433c53bbc4c"
+  },
+  "id": "cOV2rMqKYkkDHgEg",
+  "tags": []
+}
