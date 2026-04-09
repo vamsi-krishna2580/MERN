@@ -24,6 +24,7 @@ export default defineConfig({
     proxy: {        // 🔥 allow ngrok requests
       '/api': {
         target: 'http://localhost:3000',
+        // target: 'http://backend:3000', for Docker
         changeOrigin: true,
       },
     },      
