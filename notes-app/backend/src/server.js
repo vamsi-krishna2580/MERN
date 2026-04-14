@@ -3,7 +3,7 @@ dotenv.config();
 import express from "express";
 import notesRouter from "./routes/notesRouter.js"
 import { connectDB } from "./config/db.js";
-import rateLimiter from "./middleware/rateLimiter.js";
+//import rateLimiter from "./middleware/rateLimiter.js";
 import AuthRouter from "./routes/AuthRouter.js"
 import cors from "cors";
 import { verifyUser } from "./middleware/auth.js";
@@ -21,7 +21,7 @@ app.use((req, res, next)=>{
     next();
 });
 //app.use(rateLimiter);
-app.use("/api/todos", verifyUser, notesRouter);
+app.use("/api/todos", notesRouter);
 app.use("/api/auth", AuthRouter);
 
 connectDB().then(()=>{

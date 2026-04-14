@@ -3,7 +3,8 @@ import Note from "../models/Note.js"
 
 export  const getAllnotes = async (req, res)=>{
     try {
-        const data = await Note.find({userId: req.userId}).sort({ createdAt: -1 }); // -1 will sort in desc order {newest first}
+        const data = await Note.find().sort({ createdAt: -1 }); // -1 will sort in desc order {newest first}
+        // const data = await Note.find({userId: req.userId}).sort({ createdAt: -1 }); // -1 will sort in desc order {newest first}
         res.status(200).json({
             "success":true, data,
         }); 
